@@ -1,0 +1,73 @@
+   def get_possible_stste2(self,puzzle,heur): #build graph to pass to best search function(this_gragh,state)
+        new_states = []
+        hn = heur(puzzle.matrix)
+        row , col = puzzle.find_blank(0)
+        posB = (row,col)
+
+        nstate[puzzle] = []
+        p1 = squarePuzzle()
+        p2 = squarePuzzle()
+        p3 = squarePuzzle()
+        p4 = squarePuzzle()
+        p1.matrix = deepcopy(puzzle.matrix)
+        p2.matrix = deepcopy(puzzle.matrix)
+        p3.matrix = deepcopy(puzzle.matrix)
+        p4.matrix = deepcopy(puzzle.matrix)
+
+        downnewrow = row+1
+
+        if(downnewrow <= 3):
+            posA = (downnewrow,col)
+            p1.Pswap(posB, posA)
+            if(heur(p1.matrix) <= hn):
+                newstates.append(p1)  # out fun
+                new_states.append(p1.matrix) # in fun
+                nstate[puzzle].append(p1.matrix)
+               # p1.get_possible_stste(p1,heur)
+
+
+
+
+
+
+
+
+        upnewrow = row-1
+
+        if(upnewrow >= 0):
+            posA = (upnewrow,col)
+            p2.Pswap(posB, posA)
+            if(heur(p2.matrix) <= hn):
+                newstates.append(p2)
+                new_states.append(p2.matrix)
+               # nstate[puzzle].append(p2.matrix)
+           # p2.get_possible_stste(p2,heur)
+
+
+        rightnewcol = col+1
+
+        if(rightnewcol <= 3):
+            posA = (row,rightnewcol)
+            p3.Pswap(posB, posA)
+            if(heur(p3.matrix) <=hn):
+                newstates.append(p3)
+                new_states.append(p3.matrix)
+                #nstate[puzzle].append(p3.matrix)
+           # p3.get_possible_stste(p3,heur)
+
+        leftnewcol = col-1
+
+
+        if(leftnewcol  > 0):
+            posA = (row,leftnewcol)
+            p4.Pswap(posB, posA)
+            if(heur(p4.matrix) <= hn):
+                newstates.append(p4)
+                new_states.append(p4.matrix)
+               # nstate[puzzle].append(p4.matrix)
+          #  p4.get_possible_stste(p4,heur)
+
+
+        return new_states
+
+

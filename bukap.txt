@@ -1,0 +1,217 @@
+import random
+import math
+from copy import deepcopy
+
+GState = \
+    [[1,2,3,4]
+    ,[5,6,7,8]
+    ,[9,10,11,12]
+    ,[13,14,15,0]]
+nstate = {}
+newstates = []
+class squarePuzzle:
+
+
+    def __init__(self):
+        self.heuristic = 0
+        self.depth = 0
+        self.parent = None
+        self.matrix = []
+        for i in range(4):
+            self.matrix.append(GState[i][:])
+#--------------------------------------------------------------
+    def _get_legal_moves(self): #brg3 l possible states l ynf3 a3mlha shuffle
+
+        row, col = self.find(0)
+        free = []
+        if row > 0:
+            free.append((row - 1, col))
+        if col > 0:
+            free.append((row, col - 1))
+        if row < 3:
+            free.append((row + 1, col))
+        if col < 3:
+            free.append((row, col + 1))
+
+        return free
+#----------------------------------------------------------
+
+    def shuffle(self, step_count): # bt3ml shuffle
+        for i in range(step_count):
+            row, col = self.find(0)
+            free = self._get_legal_moves()
+            target = random.choice(free)
+            self.swap((row, col), target)
+            row, col = target
+#------------------------------------------------------------
+
+    def find(self, value): # arg3 l index
+        if value < 0 or value > 15:
+            raise Exception("value out of range")
+
+        for row in range(4):
+            for col in range(4):
+                if self.matrix[row][col] == value:
+                    return row, col
+#--------------------------------------------------------------------
+
+    def peek(self, row, col):# ptrg3 value bta3 index mo3yn
+        return self.matrix[row][col]
+
+#-------------------------------------------------------------------
+
+    def poke(self, row, col, value): #btsgl value bta3 index mo3yn
+        self.matrix[row][col] = value
+#--------------------------------------------------------------------
+
+    def swap(self, pos_a, pos_b): #bt3ml swap
+        temp = self.peek(*pos_a)
+        self.poke(pos_a[0], pos_a[1], self.peek(*pos_b))
+        self.poke(pos_b[0], pos_b[1], temp)
+
+#-------------------------------------------------------------------
+
+    def Pswap(self,pos_a, pos_b): #bt3ml swap brdo
+        temp = self.matrix[pos_a[0]][pos_a[1]]
+        self.matrix[pos_a[0]][pos_a[1]] = self.matrix[pos_b[0]][pos_b[1]]
+        self.matrix[pos_b[0]][pos_b[1]] = temp
+
+#---------------------------------------------------------------------
+
+    def misPlace(self,State): # first heuristic function
+        num = 1
+        mis_place = 0
+        for i in range(len(State)):
+            for j in range(len(State)):
+                if (State[i][j] != num):
+                    mis_place +=1
+                num +=1
+        return mis_place
+
+#-------------------------------------------------------------------------
+    def check_if_goal(self,state,goal): # check if goal state or not
+        for x in range(len(state)):
+            for y in range(len(state)):
+                if state[x][y]!=goal[x][y]:
+                    return false
+        return true
+#-------------------------------------------------------------------------
+    def manhattan_dis(self,state,goal): #second heuristc function
+        distance=0
+        for i in range(len(state)):
+            for j in range(len(state)):
+                index_i , index_j=i ,j
+                for x in range(len(goal)):
+                    for y in range(len(goal)):
+                        index_x, index_y = x, y
+                        if state[i][j] == goal[x][y]:
+                           distance += abs(index_i - index_x) + abs(index_j - index_y)
+        return distance
+#-------------------------------------------------------------------------------------
+    def get_possible_stste(self,puzzle,heur): #build graph
+        new_states = []
+        hn = heur(puzzle.matrix)
+        row , col = puzzle.find(0)
+        posB = (row,col)
+
+        nstate[puzzle] = []
+
+        downnewrow = row+1
+
+        if(downnewrow <= 3):
+            posA = (downnewrow,col)
+            p1 = squarePuzzle()
+            p1.matrix = deepcopy(puzzle.matrix)
+            p1.Pswap(posB, posA)
+            if(heur(p1.matrix) <= hn):
+                newstates.append(p1)  # out fun
+                new_states.append(p1) # in fun
+               # nstate[puzzle].append(p1.matrix)
+#                p1.get_possible_stste(p1,heur)
+
+
+
+
+
+
+
+
+        upnewrow = row-1
+
+        if(upnewrow >= 0):
+            posA = (upnewrow,col)
+            p2 = squarePuzzle()
+            p2.matrix = deepcopy(puzzle.matrix)
+            p2.Pswap(posB, posA)
+            if(heur(p2.matrix) <= hn):
+                newstates.append(p2)
+                new_states.append(p2)
+            #  nstate[str(puzzle)].append(p2.matrix)
+              #  p2.get_possible_stste(p2,heur)
+
+
+        rightnewcol = col+1
+
+        if(rightnewcol <= 3):
+            posA = (row,rightnewcol)
+            p3 = squarePuzzle()
+            p3.matrix = deepcopy(puzzle.matrix)
+            p3.Pswap(posB, posA)
+            if(heur(p3.matrix) <=hn):
+                newstates.append(p3)
+                new_states.append(p3)
+              #  nstate[str(puzzle)].append(p3.matrix)
+             #   p3.get_possible_stste(p3,heur)
+
+        leftnewcol = col-1
+
+
+        if(leftnewcol  > 0):
+            posA = (row,leftnewcol)
+            p4 = squarePuzzle()
+            p4.matrix = deepcopy(puzzle.matrix)
+            p4.Pswap(posB, posA)
+            if(heur(p4.matrix) <= hn):
+                newstates.append(p4)
+                new_states.append(p4)
+               # nstate[str(puzzle)].append(p4.matrix)
+              #  p4.get_possible_stste(p4,heur)
+
+
+        return new_states
+
+
+
+
+
+
+
+s = squarePuzzle()
+#print (s.matrix)
+s.shuffle(100)
+for i in s.matrix:
+    print (i)
+print ("\n")
+
+goal = \
+    [[1,2,3,4]
+    ,[5,6,7,8]
+    ,[9,10,11,12]
+    ,[13,14,15,0]]
+
+
+for i in goal:
+    print (i)
+print ("\n")
+
+#print(s.manhattan_dis(s.matrix,GState))
+
+s.get_possible_stste(s,s.misPlace)
+#for i in nstate:
+ #   print (i)
+     #for x in nstate:
+      #  for row in x :
+       #    print (row)
+
+    #print ("\n")
+

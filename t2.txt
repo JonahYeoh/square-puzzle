@@ -1,0 +1,187 @@
+import random
+import math
+from copy import deepcopy
+
+GState = \
+    [[1,2,3,4]
+    ,[5,6,7,8]
+    ,[9,10,11,12]
+    ,[13,14,15,0]]
+nstate = {}
+newstates = []
+class squarePuzzle:
+
+
+    def __init__(self):
+        self.heuristic = 0
+        self.depth = 0
+        self.parent = None
+        self.matrix = []
+        for i in range(4):
+            self.matrix.append(GState[i][:])
+
+    def _get_legal_moves(self):
+        """Returns list of tuples with which the free space may
+        be swapped"""
+        # get row and column of the empty piece
+        row, col = self.find(0)
+        free = []
+
+        # find which pieces can move there
+        if row > 0:
+            free.append((row - 1, col))
+        if col > 0:
+            free.append((row, col - 1))
+        if row < 3:
+            free.append((row + 1, col))
+        if col < 3:
+            free.append((row, col + 1))
+
+        return free
+
+
+    def shuffle(self, step_count):
+        for i in range(step_count):
+            row, col = self.find(0)
+            free = self._get_legal_moves()
+            target = random.choice(free)
+            self.swap((row, col), target)
+            row, col = target
+
+    def find(self, value):
+        """returns the row, col coordinates of the specified value
+           in the graph"""
+        if value < 0 or value > 15:
+            raise Exception("value out of range")
+
+        for row in range(4):
+            for col in range(4):
+                if self.matrix[row][col] == value:
+                    return row, col
+
+
+    def peek(self, row, col):
+        """returns the value at the specified row and column"""
+        return self.matrix[row][col]
+
+    def poke(self, row, col, value):
+        """sets the value at the specified row and column"""
+        self.matrix[row][col] = value
+
+    def swap(self, pos_a, pos_b):
+        """swaps values at the specified coordinates"""
+        temp = self.peek(*pos_a)
+        self.poke(pos_a[0], pos_a[1], self.peek(*pos_b))
+        self.poke(pos_b[0], pos_b[1], temp)
+
+
+    def Pswap(self,pos_a, pos_b):
+        temp = self.matrix[pos_a[0]][pos_a[1]]
+        self.matrix[pos_a[0]][pos_a[1]] = self.matrix[pos_b[0]][pos_b[1]]
+        self.matrix[pos_b[0]][pos_b[1]] = temp
+
+
+    def misPlace(self,State):
+        num = 1
+        mis_place = 0
+        for i in range(len(State)):
+            for j in range(len(State)):
+                if (State[i][j] != num):
+                    mis_place +=1
+                num +=1
+        return mis_place
+
+
+    def get_possible_stste(self,level,puzzle,heur1):
+        new_states = []
+        hn = heur1(puzzle.matrix)
+        row , col = puzzle.find(0)
+        posB = (row,col)
+
+        nstate[str(level)+str(puzzle)] = []
+
+        downnewrow = row+1
+
+        if(downnewrow <= 3):
+            posA = (downnewrow,col)
+            p1 = squarePuzzle()
+            p1.matrix = deepcopy(puzzle.matrix)
+            p1.Pswap(posB, posA)
+            if(heur1(p1.matrix) <= hn):
+                newstates.append(p1)  # out fun
+                new_states.append(p1) # in fun
+                nstate[str(level)+str(puzzle)].append(p1.matrix)
+                p1.get_possible_stste(level,p1,heur1)
+
+
+
+
+
+
+
+
+        upnewrow = row-1
+
+        if(upnewrow >= 0):
+            posA = (upnewrow,col)
+            p2 = squarePuzzle()
+            p2.matrix = deepcopy(puzzle.matrix)
+            p2.Pswap(posB, posA)
+            if(heur1(p2.matrix) <= hn):
+                newstates.append(p2)
+                new_states.append(p2)
+                nstate[str(level)+str(puzzle)].append(p2.matrix)
+                #p2.get_possible_stste(level,p2,heur1)
+
+
+        rightnewcol = col+1
+
+        if(rightnewcol <= 3):
+            posA = (row,rightnewcol)
+            p3 = squarePuzzle()
+            p3.matrix = deepcopy(puzzle.matrix)
+            p3.Pswap(posB, posA)
+            if(heur1(p3.matrix) <=hn):
+                newstates.append(p3)
+                new_states.append(p3)
+                nstate[str(level)+str(puzzle)].append(p3.matrix)
+                #p3.get_possible_stste(level,p3,heur1)
+
+        leftnewcol = col-1
+
+
+        if(leftnewcol  > 0):
+            posA = (row,leftnewcol)
+            p4 = squarePuzzle()
+            p4.matrix = deepcopy(puzzle.matrix)
+            p4.Pswap(posB, posA)
+            if(heur1(p4.matrix) <= hn):
+                newstates.append(p4)
+                new_states.append(p4)
+                nstate[str(level)+str(puzzle)].append(p4.matrix)
+               # p4.get_possible_stste(level,p4,heur1)
+
+
+     # return new_states
+
+
+
+
+
+
+
+s = squarePuzzle()
+#print (s.matrix)
+s.shuffle(100)
+for i in s.matrix:
+    print (i)
+print ("\n")
+s.get_possible_stste( 0 , s , s.misPlace )
+for i in nstate:
+    print (i)
+    for x in nstate[i]:
+        for row in x :
+            print (row)
+
+        print ("\n")
+
